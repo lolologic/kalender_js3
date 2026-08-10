@@ -75,10 +75,10 @@ function getWeekdayOccurence(i) {
 
 // Gibt ein Array mit der Anzahl der Tage aller zwölf Monate zurück.
 // Der Februar wird abhängig vom Schaltjahr angepasst.
-function getDaysPerMonth() {
+function getDaysPerMonth(year) {
     return [
         31, // Januar
-        isLeapYear(year) ? 28 : 29, // Februar
+        isLeapYear(year) ? 29 : 28, // Februar
         31, // März
         30, // April
         31, // Mai
@@ -145,8 +145,6 @@ function getHolidayName(date) {
             return "Christi Himmelfahrt";
         case month === whitMonday.getMonth() && day === whitMonday.getDate():
             return "Pfingstmontag";
-        case month === 11 && day === 26:
-            return "Zweiter Weihnachtstag";
         default:
             return "";
     }
@@ -165,16 +163,16 @@ function calculateWeekdayOccurrence(dayOfMonth) {
 // Berechnet anhand des aktuellen Tags des Jahres,
 // wie viele Tage bis zum Jahresende verbleiben.
 function calculateRemainingDaysOfYear(dayOfMonth, monthIndex, year) {
-    const dayOfYear = calculateDayOfYear(dayOfMonth, monthIndex);
-    let daysInYear = isLeapYear(year) ? 365 : 366;
+    const dayOfYear = calculateDayOfYear(dayOfMonth, monthIndex, year);
+    const daysInYear = isLeapYear(year) ? 366 : 365;
 
     return daysInYear - dayOfYear;
 }
 
 // Addiert die Tage aller vollständig vergangenen Monate
 // und anschließend den aktuellen Tag des Monats.
-function calculateDayOfYear(dayOfMonth, monthIndex) {
-    const daysPerMonth = getDaysPerMonth();
+function calculateDayOfYear(dayOfMonth, monthIndex, year) {
+    const daysPerMonth = getDaysPerMonth(year);
     let dayOfYear = 0;
 
     for (let i = 0; i < monthIndex; i++) {
@@ -234,7 +232,7 @@ function writeTextBlock(date) {
 
     // Aktuellen Tag des Jahres ausgeben.
     const dayOfYearId = "day-of-year";
-    const dayOfYearText = calculateDayOfYear(dayOfMonth, monthIndex);
+    const dayOfYearText = calculateDayOfYear(dayOfMonth, monthIndex, year);
     writeSingleElement(dayOfYearId, dayOfYearText);
 
     // Aktuelles Jahr ausgeben.
@@ -248,7 +246,7 @@ function writeTextBlock(date) {
 
     // Anzahl der Tage des aktuellen Monats ausgeben.
     const daysInMonthId = "days-in-month";
-    const daysInMonthText = getDaysPerMonth()[monthIndex];
+    const daysInMonthText = getDaysPerMonth(year)[monthIndex];
     writeSingleElement(daysInMonthId, daysInMonthText);
 
     // Feiertag für das aktuelle Datum bestimmen und Text ausgeben.
@@ -340,7 +338,7 @@ function createCalendar(date) {
     const firstWeekDay = (firstDayOfMonth.getDay() + 6) % 7;
 
     // Anzahl der Tage des aktuellen Monats bestimmen.
-    const daysInCurrentMonth = getDaysPerMonth()[monthIndex];
+    const daysInCurrentMonth = getDaysPerMonth(year)[monthIndex];
 
     // Vorherigen Monat bestimmen.
     // Januar benötigt einen Wechsel zu Dezember des Vorjahres.
@@ -390,11 +388,7 @@ function createCalendar(date) {
             // Liegt die Zelle vor dem ersten Tag des aktuellen Monats,
             // wird ein Tag des vorherigen Monats angezeigt.
             if (cellIndex < firstWeekDay) {
-                const day =
-                    daysInPreviousMonth
-                    - firstWeekDay
-                    + cellIndex
-                    + 1;
+                const day = daysInPreviousMonth - firstWeekDay + cellIndex + 1;
 
                 cell.textContent = day;
                 cell.classList.add("other-month");
