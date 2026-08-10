@@ -162,6 +162,7 @@ h2::after {
     margin: 40px auto 0;
     padding-top: 40px;
     padding-bottom: 30px;
+    padding-right: 25px;
 
     border-collapse: separate;
     border-spacing: 2px;

@@ -16,6 +16,7 @@ function main() {
 
     createCalendar(date);
     writeTextBlock(date);
+    getHistoricalEvents(date)
 }
 
 //              ###############
@@ -147,6 +148,53 @@ function getHolidayName(date) {
             return "Pfingstmontag";
         default:
             return "";
+    }
+}
+
+async function getHistoricalEvents(date) {
+    const dayOfMonth = date.getDate();
+    const monthIndex = date.getMonth();
+    const monthName = getMonthName(monthIndex);
+
+    const eventsHeading = document.getElementById("events-heading");
+    eventsHeading.textContent = `Historische Ereignisse am ${dayOfMonth}. ${monthName}`;
+
+    const response = await fetch("https://history.muffinlabs.com/date");
+
+    try {
+        if (response.ok) {
+            console.log("API-Anfrage erfolgreich");
+
+            const data = await response.json();
+            const selectedEvents = [];
+
+            while (selectedEvents.length < 5) {
+                const randomIndex = Math.floor(Math.random() * data.data.Events.length);
+                const randomEvent = data.data.Events[randomIndex];
+
+                if (!selectedEvents.includes(randomEvent)) {
+                    selectedEvents.push(randomEvent);
+                }
+            }
+
+            selectedEvents.sort((a, b) => Number(a.year) - Number(b.year));
+            console.log(selectedEvents);
+
+            const eventsList = document.getElementById("events-list");
+
+            for (let i = 0; i < selectedEvents.length; i++) {
+                const listItem = document.createElement("li");
+            
+                listItem.textContent = `${selectedEvents[i].year}: ${selectedEvents[i].text}`;
+            
+                eventsList.appendChild(listItem);
+            }
+
+        } else {
+            console.log("Fehler beim API-Abruf")
+        }
+    } catch (error) {
+        console.log("Verbindungsfehler beim API-Abruf");
     }
 }
 
