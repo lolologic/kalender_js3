@@ -135,20 +135,15 @@ function getHolidayName(date) {
 
     // Aktuelles Datum mit den berechneten beweglichen Feiertagen vergleichen.
     switch (true) {
-        case month === goodFriday.getMonth()
-            && day === goodFriday.getDate():
+        case month === goodFriday.getMonth() && day === goodFriday.getDate():
             return "Karfreitag";
-        case month === easterSundayMonth
-            && day === easterSundayDay:
+        case month === easterSundayMonth && day === easterSundayDay:
             return "Ostersonntag";
-        case month === easterMonday.getMonth()
-            && day === easterMonday.getDate():
+        case month === easterMonday.getMonth() && day === easterMonday.getDate():
             return "Ostermontag";
-        case month === ascensionDay.getMonth()
-            && day === ascensionDay.getDate():
+        case month === ascensionDay.getMonth() && day === ascensionDay.getDate():
             return "Christi Himmelfahrt";
-        case month === whitMonday.getMonth()
-            && day === whitMonday.getDate():
+        case month === whitMonday.getMonth() && day === whitMonday.getDate():
             return "Pfingstmontag";
         case month === 11 && day === 26:
             return "Zweiter Weihnachtstag";
@@ -206,12 +201,8 @@ function calculateEasterSunday(year) {
     const k = c % 4;
     const l = (32 + 2 * e + 2 * i - h - k) % 7;
     const m = Math.floor((a + 11 * h + 22 * l) / 451);
-
-    const month =
-        Math.floor((h + l - 7 * m + 114) / 31);
-
-    const day =
-        ((h + l - 7 * m + 114) % 31) + 1;
+    const month = Math.floor((h + l - 7 * m + 114) / 31);
+    const day = ((h + l - 7 * m + 114) % 31) + 1;
 
     // Date erwartet den Monatsindex 0 bis 11,
     // der Algorithmus liefert dagegen die Monatszahl 1 bis 12.
