@@ -1,0 +1,179 @@
+:root {
+    --box-shadow: 0 5px 13px 2px rgb(247, 233, 158);
+    --box-color: rgba(128, 128, 128, 0.377);
+    --font-family: "Times New Roman", Times, serif;
+}
+
+body {
+    margin: 0;
+    background-color: black;
+    color: white;
+}
+
+.container-header {
+    width: 80%;
+    min-height: 100px;
+    margin: 20px auto 0;
+    padding: 15px 20px;
+    box-sizing: border-box;
+
+    border-radius: 10px;
+    background-color: var(--box-color);
+    box-shadow: var(--box-shadow);
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+h1 {
+    margin: 0;
+    color: rgba(228, 200, 106, 0.651);
+    font-family: var(--font-family);
+    font-size: clamp(28px, 5vw, 60px);
+    font-weight: 900;
+    text-align: center;
+    text-shadow: 0 10px 7px rgb(1, 1, 1);
+
+    overflow-wrap: anywhere;
+}
+
+.container-paragraph p {
+    width: 80%;
+    margin: 60px auto 0;
+
+    text-align: center;
+    font-family: var(--font-family);
+    font-size: 20px;
+    line-height: 32px;
+}
+
+#holiday-text {
+    margin: 0 auto 0;
+}
+
+#month-heading {
+    width: 80%;
+    margin: 80px auto 0;
+    text-align: center;
+
+    font-family: var(--font-family);
+    font-size: clamp(24px, 3vw, 30px);
+}
+
+.container-table table {
+    width: 80%;
+    margin: 10px auto 0;
+
+    border-collapse: separate;
+    border-spacing: 2px;
+    border-radius: 10px;
+
+    background-color: rgb(247, 233, 158);
+    color: black;
+
+    table-layout: fixed;
+}
+
+th,
+td {
+    height: 60px;
+    padding: 10px;
+    border: 2px solid rgba(128, 128, 128, 0.377);
+    border-radius: 5px;
+    text-align: center;
+}
+
+th {
+    background-color: rgba(128, 128, 128, 0.377);
+    font-family: "Arial Black", Arial, sans-serif;
+    font-size: 30px;
+    font-weight: 900;
+}
+
+.current-day {
+    background-color: rgba(128, 128, 128, 0.377);
+    color: black;
+    font-weight: bold;
+}
+
+td {
+    font-size: 30px;
+    background-color: white;
+}
+
+td:hover {
+    background-color: #eeeeeec0;
+}
+
+th:nth-child(6) {
+    background-color: rgba(128, 128, 128, 0.774);
+    color: black;
+}
+
+th:nth-child(7) {
+    background-color: rgba(128, 128, 128, 0.774);
+    color: black;
+}
+
+td:nth-child(6) {
+    color: blue;
+}
+
+td:nth-child(7) {
+    color: red;
+}
+
+td.other-month {
+    color: #999999a2;
+}
+
+.holiday {
+    background-color: rgba(102, 79, 2, 0.449);
+    font-weight: bold;
+}
+
+.container-events h2 {
+    width: 80%;
+    margin: 80px auto 0;
+
+    font-family: var(--font-family);
+    font-size: clamp(26px, 4vw, 40px);
+
+    display: flex;
+    align-items: center;
+    gap: clamp(8px, 2vw, 20px);
+
+    text-align: center;
+}
+
+h2::before,
+h2::after {
+    content: "";
+    height: 8px;
+    border-radius: 10px;
+    background-color: rgba(128, 128, 128, 0.377);
+
+    flex: 1;
+}
+
+.container-list ul {
+    width: 77%;
+    margin: 40px auto 0;
+    padding-top: 40px;
+    padding-bottom: 30px;
+
+    border-collapse: separate;
+    border-spacing: 2px;
+    border-radius: 10px;
+
+    background-color: var(--box-color);
+    color: white;
+    box-shadow: var(--box-shadow);
+
+    text-shadow: 0px 5px 3px rgb(1, 1, 1);
+}
+
+ul li {
+    margin-bottom: 15px;
+}
