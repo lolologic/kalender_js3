@@ -16,7 +16,7 @@ function main() {
 
     createCalendar(date);
     writeTextBlock(date);
-    getHistoricalEvents(date);
+    getWikipediaEvents(date);
 }
 
 //              ###############
@@ -151,62 +151,39 @@ function getHolidayName(date) {
     }
 }
 
-async function getHistoricalEvents(date) {
+async function getWikipediaEvents(date) {
     const dayOfMonth = date.getDate();
-    const monthIndex = date.getMonth();
-    const monthName = getMonthName(monthIndex);
+    const monthName = getMonthName(date.getMonth());
+    const pageTitle = `${dayOfMonth}. ${monthName}`;
 
-    const eventsHeading = document.getElementById("events-heading");
-    const eventsList = document.getElementById("events-list");
-
-    eventsHeading.textContent = `Historische Ereignisse am ${dayOfMonth}. ${monthName}`;
+    const headingText = `Historische Ereignisse am ${dayOfMonth}. ${monthName}`;
+    writeSingleElement("events-heading", headingText);
 
     try {
-        const response = await fetch("https://history.muffinlabs.com/date");
+        const response = await fetch(
+            `https://de.wikipedia.org/w/api.php?action=parse&page=${encodeURIComponent(pageTitle)}&prop=text&format=json&origin=*`
+        );
 
-        if (response.ok) {
+        if (!response.ok) {
+            console.error(`Wikipedia-Abruf fehlgeschlagen: ${response.status} ${response.statusText}`);
 
-            const data = await response.json();
-            const selectedEvents = [];
-
-            while (selectedEvents.length < 5) {
-                const randomIndex = Math.floor(Math.random() * data.data.Events.length);
-                const randomEvent = data.data.Events[randomIndex];
-
-                if (!selectedEvents.includes(randomEvent)) {
-                    selectedEvents.push(randomEvent);
-                }
-            }
-
-            selectedEvents.sort((a, b) => Number(a.year) - Number(b.year));
-
-            for (let i = 0; i < selectedEvents.length; i++) {
-                const listItem = document.createElement("li");
-                const yearSpan = document.createElement("span");
-                const textSpan = document.createElement("span");
-            
-                yearSpan.classList.add("event-year");
-                textSpan.classList.add("event-text");
-            
-                yearSpan.textContent = selectedEvents[i].year;
-                textSpan.textContent = selectedEvents[i].text;
-            
-                listItem.appendChild(yearSpan);
-                listItem.appendChild(textSpan);
-            
-                eventsList.appendChild(listItem);
-            }
-
-        } else {
-            console.error(`API-Abruf fehlgeschlagen: ${response.status} ${response.statusText}`);
-
-            writeHistoricalEventsError(eventsList);
+            writeHistoricalEventsError();
+            return;
         }
 
-    } catch (error) {
-        console.error("Verbindungsfehler beim API-Abruf:",error);
+        const data = await response.json();
+        const htmlString = data.parse.text["*"];
 
-        writeHistoricalEventsError(eventsList);
+        const eventTexts = extractWikipediaEventTexts(htmlString);
+        const selectedEvents = selectRandomEvents(eventTexts, 5);
+
+        sortHistoricalEvents(selectedEvents);
+        writeHistoricalEvents(selectedEvents);
+
+    } catch (error) {
+        console.error("Verbindungsfehler beim Wikipedia-Abruf:", error);
+
+        writeHistoricalEventsError();
     }
 }
 
@@ -353,6 +330,41 @@ function writeClassOfElements(elementsClass, elementsText) {
     }
 }
 
+function writeHistoricalEvents(events) {
+    const eventsList = document.getElementById("events-list");
+
+    for (let i = 0; i < events.length; i++) {
+        const separatorIndex = events[i].indexOf(":");
+
+        const year = events[i].slice(0, separatorIndex);
+        const text = events[i].slice(separatorIndex + 1).trim();
+
+        const listItem = document.createElement("li");
+        const yearSpan = document.createElement("span");
+        const textSpan = document.createElement("span");
+
+        yearSpan.classList.add("event-year");
+        textSpan.classList.add("event-text");
+
+        yearSpan.textContent = year;
+        textSpan.textContent = text;
+
+        listItem.appendChild(yearSpan);
+        listItem.appendChild(textSpan);
+
+        eventsList.appendChild(listItem);
+    }
+}
+
+function writeHistoricalEventsError() {
+    const eventsList = document.getElementById("events-list");
+
+    const listItem = document.createElement("li");
+    listItem.textContent = "ERROR: Historische Ereignisse konnten nicht geladen werden.";
+
+    eventsList.appendChild(listItem);
+}
+
 //              ###############
 //              #    HELPER   #
 //              ###############
@@ -374,11 +386,85 @@ function isLeapYear(year) {
     return false;
 }
 
-function writeHistoricalEventsError(eventsList) {
-    const listItem = document.createElement("li");
-    listItem.textContent = "ERROR: Historische Ereignisse konnten nicht geladen werden.";
+function selectRandomEvents(events, amount) {
+    const selectedEvents = [];
 
-    eventsList.appendChild(listItem);
+    while (selectedEvents.length < amount) {
+        const randomIndex = Math.floor(Math.random() * events.length);
+        const randomEvent = events[randomIndex];
+
+        if (!selectedEvents.includes(randomEvent)) {
+            selectedEvents.push(randomEvent);
+        }
+    }
+
+    return selectedEvents;
+}
+
+function sortHistoricalEvents(events) {
+    events.sort((a, b) => {
+        const yearA = a.slice(0, a.indexOf(":"));
+        const yearB = b.slice(0, b.indexOf(":"));
+
+        let numericYearA = parseInt(yearA);
+        let numericYearB = parseInt(yearB);
+
+        if (yearA.includes("v. Chr.")) {
+            numericYearA *= -1;
+        }
+
+        if (yearB.includes("v. Chr.")) {
+            numericYearB *= -1;
+        }
+
+        return numericYearA - numericYearB;
+    });
+}
+
+function extractWikipediaEventTexts(htmlString) {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(htmlString, "text/html");
+
+    const wikipediaEventsHeading = doc.querySelector("#Ereignisse");
+    const eventLists = [];
+
+    let currentElement = wikipediaEventsHeading.parentElement.nextElementSibling;
+
+    while (currentElement) {
+        if (currentElement.classList.contains("mw-heading2")) {
+            break;
+        }
+
+        if (currentElement.tagName === "UL") {
+            eventLists.push(currentElement);
+        }
+
+        currentElement = currentElement.nextElementSibling;
+    }
+
+    const eventItems = [];
+
+    for (let i = 0; i < eventLists.length; i++) {
+        const listItems = eventLists[i].querySelectorAll("li");
+
+        for (let j = 0; j < listItems.length; j++) {
+            eventItems.push(listItems[j]);
+        }
+    }
+
+    const eventTexts = [];
+
+    for (let i = 0; i < eventItems.length; i++) {
+        const hiddenElements = eventItems[i].querySelectorAll('[style*="visibility:hidden"]');
+
+        for (let j = 0; j < hiddenElements.length; j++) {
+            hiddenElements[j].remove();
+        }
+
+        eventTexts.push(eventItems[i].textContent.trim());
+    }
+
+    return eventTexts;
 }
 
 //              ###############

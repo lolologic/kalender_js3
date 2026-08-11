@@ -62,7 +62,7 @@ h1 {
 }
 
 .container-table table {
-    width: 80%;
+    width: 50%;
     margin: 10px auto 0;
 
     border-collapse: separate;
@@ -160,8 +160,9 @@ h2::after {
 .container-list ul {
     width: 77%;
     margin: 40px auto 0;
+    margin-bottom: 30px;
     padding-top: 40px;
-    padding-bottom: 30px;
+    padding-bottom: 10px;
     padding-right: 25px;
 
     border-collapse: separate;
@@ -180,8 +181,9 @@ h2::after {
 
 #events-list li {
     display: grid;
-    grid-template-columns: 40px 1fr;
+    grid-template-columns: 30px 1fr;
     gap: 30px;
+    margin-bottom: 30px;
 }
 
 .event-year {
