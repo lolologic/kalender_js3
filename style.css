@@ -172,6 +172,9 @@ h2::after {
     color: white;
     box-shadow: var(--box-shadow);
 
+    font-family: var(--font-family);
+    font-size: 20px;
+    line-height: 32px;
     text-shadow: 0px 5px 3px rgb(1, 1, 1);
 }
 
