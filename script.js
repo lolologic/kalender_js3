@@ -386,6 +386,24 @@ function isLeapYear(year) {
     return false;
 }
 
+function getPreviousMonthData(year, monthIndex) {
+    let previousMonthIndex = monthIndex - 1;
+    let previousMonthYear = year;
+
+    if (previousMonthIndex < 0) {
+        previousMonthIndex = 11;
+        previousMonthYear--;
+    }
+
+    const daysInPreviousMonth = getDaysPerMonth(previousMonthYear)[previousMonthIndex];
+
+    return {
+        previousMonthIndex,
+        previousMonthYear,
+        daysInPreviousMonth
+    };
+}
+
 function selectRandomEvents(events, amount) {
     const selectedEvents = [];
 
@@ -478,121 +496,100 @@ function createCalendar(date) {
     const monthIndex = date.getMonth();
     const dayOfMonth = date.getDate();
 
-    // Tabellenkörper holen und eventuell vorhandene
-    // Kalenderzeilen entfernen.
     const calendarBody = document.getElementById("calendar-body");
     calendarBody.innerHTML = "";
 
-    // Ersten Tag des Monats bestimmen.
     const firstDayOfMonth = new Date(year, monthIndex, 1);
-
-    // getDay() beginnt mit Sonntag = 0.
-    // Durch die Umrechnung beginnt unser Kalender mit Montag = 0.
     const firstWeekDay = (firstDayOfMonth.getDay() + 6) % 7;
 
-    // Anzahl der Tage des aktuellen Monats bestimmen.
     const daysInCurrentMonth = getDaysPerMonth(year)[monthIndex];
+    const previousMonthData = getPreviousMonthData(year, monthIndex);
 
-    // Vorherigen Monat bestimmen.
-    // Januar benötigt einen Wechsel zu Dezember des Vorjahres.
-    let previousMonthIndex = monthIndex - 1;
-    let previousMonthYear = year;
-
-    if (previousMonthIndex < 0) {
-        previousMonthIndex = 11;
-        previousMonthYear--;
-    }
-
-    // Monatstage des vorherigen Jahres bestimmen,
-    // damit auch der Februar eines Schaltjahres korrekt ist.
-    const previousMonthDays = [
-        31,
-        isLeapYear(previousMonthYear) ? 29 : 28,
-        31,
-        30,
-        31,
-        30,
-        31,
-        31,
-        30,
-        31,
-        30,
-        31
-    ];
-
-    const daysInPreviousMonth = previousMonthDays[previousMonthIndex];
-
-    // Zähler für die Tage des aktuellen
-    // und des folgenden Monats.
     let currentDay = 1;
     let nextMonthDay = 1;
 
-    // Ein Monatskalender benötigt höchstens sechs Zeilen.
     for (let week = 0; week < 6; week++) {
         const row = document.createElement("tr");
 
-        // Für jede Woche sieben Tabellenzellen erzeugen.
         for (let weekDay = 0; weekDay < 7; weekDay++) {
-            const cell = document.createElement("td");
-
-            // Laufende Position der Zelle im gesamten Kalender.
             const cellIndex = week * 7 + weekDay;
+            let cell;
 
-            // Liegt die Zelle vor dem ersten Tag des aktuellen Monats,
-            // wird ein Tag des vorherigen Monats angezeigt.
             if (cellIndex < firstWeekDay) {
-                const day = daysInPreviousMonth - firstWeekDay + cellIndex + 1;
+                const day = previousMonthData.daysInPreviousMonth - firstWeekDay + cellIndex + 1;
 
-                cell.textContent = day;
-                cell.classList.add("other-month");
+                cell = createCalendarCell(
+                    previousMonthData.previousMonthYear,
+                    previousMonthData.previousMonthIndex,
+                    day,
+                    dayOfMonth,
+                    true
+                );
             }
 
-            // Solange noch Tage des aktuellen Monats vorhanden sind,
-            // werden diese ausgegeben.
             else if (currentDay <= daysInCurrentMonth) {
-                cell.textContent = currentDay;
-
-                // Aktuellen Tag optisch hervorheben.
-                if (currentDay === dayOfMonth) {
-                    cell.classList.add("current-day");
-                }
-
-                // Für jeden Kalendertag prüfen,
-                // ob es sich um einen Feiertag handelt.
-                const cellDate = new Date(year, monthIndex, currentDay);
-                const holidayName = getHolidayName(cellDate);
-
-                if (holidayName !== "") {
-                    cell.classList.add("holiday");
-
-                    // Feiertagsname beim Überfahren
-                    // der Zelle als Tooltip anzeigen.
-                    cell.title = holidayName;
-                }
+                cell = createCalendarCell(
+                    year,
+                    monthIndex,
+                    currentDay,
+                    dayOfMonth,
+                    false
+                );
 
                 currentDay++;
             }
 
-            // Nach dem letzten Tag des aktuellen Monats
-            // bereits die ersten Tage des Folgemonats anzeigen.
             else {
-                cell.textContent = nextMonthDay;
-                cell.classList.add("other-month");
+                let nextMonthIndex = monthIndex + 1;
+                let nextMonthYear = year;
+
+                if (nextMonthIndex > 11) {
+                    nextMonthIndex = 0;
+                    nextMonthYear++;
+                }
+
+                cell = createCalendarCell(
+                    nextMonthYear,
+                    nextMonthIndex,
+                    nextMonthDay,
+                    dayOfMonth,
+                    true
+                );
 
                 nextMonthDay++;
             }
 
-            // Fertige Tageszelle an die aktuelle Kalenderwoche anhängen.
             row.appendChild(cell);
         }
 
-        // Fertige Kalenderwoche in den Tabellenkörper einfügen.
         calendarBody.appendChild(row);
 
-        // Schleife beenden, sobald der aktuelle Monat vollständig
-        // dargestellt wurde und genügend Folgetage eingefügt sind.
         if (currentDay > daysInCurrentMonth && nextMonthDay > 7) {
             break;
         }
     }
+}
+
+function createCalendarCell(year, monthIndex, day, dayOfMonth, isOtherMonth) {
+    const cell = document.createElement("td");
+    cell.textContent = day;
+
+    if (isOtherMonth) {
+        cell.classList.add("other-month");
+        return cell;
+    }
+
+    if (day === dayOfMonth) {
+        cell.classList.add("current-day");
+    }
+
+    const cellDate = new Date(year, monthIndex, day);
+    const holidayName = getHolidayName(cellDate);
+
+    if (holidayName !== "") {
+        cell.classList.add("holiday");
+        cell.title = holidayName;
+    }
+
+    return cell;
 }
