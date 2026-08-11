@@ -16,7 +16,7 @@ function main() {
 
     createCalendar(date);
     writeTextBlock(date);
-    getHistoricalEvents(date)
+    getHistoricalEvents(date);
 }
 
 //              ###############
@@ -182,8 +182,18 @@ async function getHistoricalEvents(date) {
 
             for (let i = 0; i < selectedEvents.length; i++) {
                 const listItem = document.createElement("li");
-                listItem.textContent = `${selectedEvents[i].year}: ${selectedEvents[i].text}`;
-
+                const yearSpan = document.createElement("span");
+                const textSpan = document.createElement("span");
+            
+                yearSpan.classList.add("event-year");
+                textSpan.classList.add("event-text");
+            
+                yearSpan.textContent = selectedEvents[i].year;
+                textSpan.textContent = selectedEvents[i].text;
+            
+                listItem.appendChild(yearSpan);
+                listItem.appendChild(textSpan);
+            
                 eventsList.appendChild(listItem);
             }
 
