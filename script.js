@@ -124,14 +124,9 @@ function getHolidayName(date) {
     const easterSundayDay = easterSunday.getDate();
 
     // Bewegliche Feiertage durch Verschieben des Osterdatums berechnen.
-
-    // Karfreitag: zwei Tage vor Ostersonntag.
     const goodFriday = new Date(year, easterSundayMonth, easterSundayDay - 2);
-    // Ostermontag: ein Tag nach Ostersonntag.
     const easterMonday = new Date(year, easterSundayMonth, easterSundayDay + 1);
-    // Christi Himmelfahrt: 39 Tage nach Ostersonntag.
     const ascensionDay = new Date(year, easterSundayMonth, easterSundayDay + 39);
-    // Pfingstmontag: 50 Tage nach Ostersonntag.
     const whitMonday = new Date(year, easterSundayMonth, easterSundayDay + 50);
 
     // Aktuelles Datum mit den berechneten beweglichen Feiertagen vergleichen.
@@ -151,6 +146,8 @@ function getHolidayName(date) {
     }
 }
 
+// Lädt historische Ereignisse für das aktuelle Datum über die Wikipedia-API,
+// bereitet die Daten auf und stößt Auswahl, Sortierung und Ausgabe an.
 async function getWikipediaEvents(date) {
     const dayOfMonth = date.getDate();
     const monthName = getMonthName(date.getMonth());
@@ -330,6 +327,8 @@ function writeClassOfElements(elementsClass, elementsText) {
     }
 }
 
+// Trennt Jahr und Ereignistext und schreibt die historischen
+// Ereignisse als Listeneinträge in die vorgesehene HTML-Liste.
 function writeHistoricalEvents(events) {
     const eventsList = document.getElementById("events-list");
 
@@ -356,6 +355,8 @@ function writeHistoricalEvents(events) {
     }
 }
 
+// Gibt eine Fehlermeldung aus, wenn historische Ereignisse
+// nicht geladen oder verarbeitet werden konnten.
 function writeHistoricalEventsError() {
     const eventsList = document.getElementById("events-list");
 
@@ -386,6 +387,8 @@ function isLeapYear(year) {
     return false;
 }
 
+// Bestimmt Index, Jahr und Anzahl der Tage des vorherigen Monats.
+// Berücksichtigt dabei den Jahreswechsel von Januar zu Dezember.
 function getPreviousMonthData(year, monthIndex) {
     let previousMonthIndex = monthIndex - 1;
     let previousMonthYear = year;
@@ -404,6 +407,8 @@ function getPreviousMonthData(year, monthIndex) {
     };
 }
 
+// Wählt die gewünschte Anzahl unterschiedlicher
+// Einträge zufällig aus einem Array aus.
 function selectRandomEvents(events, amount) {
     const selectedEvents = [];
 
@@ -419,6 +424,8 @@ function selectRandomEvents(events, amount) {
     return selectedEvents;
 }
 
+// Sortiert historische Ereignisse chronologisch nach ihrer Jahresangabe.
+// Jahreszahlen vor Christus werden dabei als negative Werte behandelt.
 function sortHistoricalEvents(events) {
     events.sort((a, b) => {
         const yearA = a.slice(0, a.indexOf(":"));
@@ -439,6 +446,8 @@ function sortHistoricalEvents(events) {
     });
 }
 
+// Extrahiert aus dem von Wikipedia gelieferten HTML die Ereignislisten
+// und gibt deren bereinigte Textinhalte als Array zurück.
 function extractWikipediaEventTexts(htmlString) {
     const parser = new DOMParser();
     const doc = parser.parseFromString(htmlString, "text/html");
@@ -570,6 +579,8 @@ function createCalendar(date) {
     }
 }
 
+// Erzeugt eine Kalenderzelle und ergänzt abhängig vom Datum
+// Markierungen für Fremdmonat, aktuellen Tag und Feiertage.
 function createCalendarCell(year, monthIndex, day, dayOfMonth, isOtherMonth) {
     const cell = document.createElement("td");
     cell.textContent = day;
